@@ -9,30 +9,36 @@ import {
   DrawerTrigger,
 } from "../components/ui/drawer"
 
-import { Plus, MoveRight, X } from "lucide-react";
+// import { Plus, MoveRight, X } from "lucide-react";
+import { FaPlus } from "react-icons/fa6";
+import { FaArrowRightLong } from "react-icons/fa6";
+import { RxCross2 } from "react-icons/rx";
 import StreamingServiceList from "../components/StreamingServiceList";
 import { StreamingServiceContext } from "../context/StreamingServiceContext";
 import { useContext } from "react";
+import '../index.css'
+
+
 
 export default function StreamingServicesSelection() {
   const {originService, targetService} = useContext(StreamingServiceContext)
 
   return(
     <>
-      <div className="row-span-4 col-span-10 shadow-lg flex flex-row justify-evenly gap-5 items-center flex-wrap bg-white rounded-lg p-4">
-        <h1 className="text-3xl font-bold left-10">
+      <div className="selection shadow-lg flex flex-row justify-evenly gap-5 items-center flex-wrap bg-white rounded-lg p-4">
+        <h1 className="text-2xl font-bold text-center">
           Select Streaming Services
         </h1>
         <Separator orientation='horizontal' className='m-0'/>
-        <div className='flex justify-evenly items-center gap-20'>
+        <div className='flex justify-evenly items-center gap-5'>
           <Drawer>
-            <DrawerTrigger className="rounded-xl" asChild>
-              <div className='group h-24 w-24 p-2 flex justify-center items-center border border-gray-200 hover:bg-gray-100'>
+            <DrawerTrigger className="rounded-2xl" asChild>
+              <div className='group h-28 w-28 p-2 flex justify-center items-center border border-gray-200 hover:bg-gray-100'>
               {
                 (originService.name) ?
                 <img className='' src={originService.logo} alt={originService.name} />                 
                 :
-                <Plus className="h-10 w-10 text-gray-400 group-hover:text-gray-600" />
+                <FaPlus className="h-10 w-10 text-gray-400 group-hover:text-gray-600" />
                 }
               </div>
             </DrawerTrigger>
@@ -47,23 +53,23 @@ export default function StreamingServicesSelection() {
               <DrawerClose>
                 <StreamingServiceList source={'origin'}/>
                 <div className='absolute top-3 right-3 rounded-lg text-gray-400 p-2 hover:bg-gray-100'>
-                  <X className=""/>
+                  <RxCross2 className="w-8 h-8"/>
                 </div>
               </DrawerClose>
 
             </DrawerContent>
           </Drawer>
 
-          <MoveRight className="w-14 h-14 text-gray-600"/>
+          <FaArrowRightLong className="w-12 h-12 text-gray-600"/>
 
           <Drawer>
-            <DrawerTrigger className="rounded-xl" asChild>
-              <div className='group h-24 w-24 p-2 flex justify-center items-center border border-gray-200 hover:bg-gray-100'>
+            <DrawerTrigger className="rounded-2xl" asChild>
+              <div className='group h-28 w-28 p-2 flex justify-center items-center border border-gray-200 hover:bg-gray-100'>
               {
                 (targetService.name) ?
                 <img className='' src={targetService.logo} alt={targetService.name} />                 
                 :
-                <Plus className="h-10 w-10 text-gray-400 group-hover:text-gray-600" />
+                <FaPlus className="h-10 w-10 text-gray-400 group-hover:text-gray-600" />
                 }
               </div>
             </DrawerTrigger>
@@ -78,7 +84,7 @@ export default function StreamingServicesSelection() {
               <DrawerClose>
                 <StreamingServiceList source={'target'}/>
                 <div className='absolute top-3 right-3 rounded-lg text-gray-400 p-2 hover:bg-gray-100'>
-                  <X className=""/>
+                  <RxCross2 className="w-8 h-8"/>
                 </div>
               </DrawerClose>
 

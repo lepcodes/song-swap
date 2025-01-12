@@ -10,6 +10,9 @@ export default {
   	extend: {
       fontFamily: {
         'sans': ['"Poppins"', ...defaultTheme.fontFamily.sans],
+		'lexendExa': ['Lexend Exa', 'sans-serif'],
+		'playwriteA': ['Playwrite AU SA', 'sans-serif'],
+		'playwriteB': ['Playwrite IS', 'sans-serif'],
       },
   		borderRadius: {
   			lg: 'var(--radius)',

@@ -1,12 +1,10 @@
-import { AccessPlaylist } from "./AccessPlaylist";
+import '../index.css'
 
 export default function PlaylistDisplayList() {
   return (
     <>
-      <div className={`row-span-7 col-span-7 flex flex-row items-center justify-center rounded-lg p-4 shadow-md bg-white`}>
-        
-        <AccessPlaylist/>
-        
+      <div className={`display flex flex-row rounded-lg p-4 shadow-md bg-white`}>
+          Playlists
       </div>
     </>
   );

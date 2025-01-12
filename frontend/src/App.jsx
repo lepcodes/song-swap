@@ -1,13 +1,14 @@
 import Header from "./components/Header"
 import PlaylistDisplayList from "./components/PlaylistDisplayList";
-
 import StreamingServicesSelection from "./components/StreamingServicesSelection";
+import { AccessPlaylist } from "./components/AccessPlaylist";
+import './index.css'
 
 export default function App() {
   
   return (
     <>  
-      <div className="grid grid-rows-12 grid-cols-10 h-screen gap-4 p-4">
+      <div className="main font-lexendExa">
 
         <Header/>
         
@@ -15,7 +16,9 @@ export default function App() {
 
         <PlaylistDisplayList/>
 
-        <div className="row-span-7 col-span-3 flex flex-row flex-1 gap-5 items-center flex-wrap bg-white rounded-lg p-4 shadow-lg">Dummy</div>
+        <AccessPlaylist/>
+
+        <div className="footer flex flex-row flex-1 gap-5 items-center flex-wrap bg-white rounded-lg p-4 shadow-lg">Footer</div>
       
       </div>
     </>
