@@ -42,7 +42,7 @@ export function AccessPlaylist() {
   return (
     <>
       <div className="access flex justify-center items-center bg-transparent p-0">
-        <div className={`flex flex-col gap-2 items-center justify-center w-full h-full p-5 border border-gray-200 rounded-lg shadow-lg
+        <div className={`flex flex-col gap-2 items-center justify-evenly w-full h-full px-6 py-6 border border-gray-200 rounded-lg shadow-lg
           ${originService.name 
           ? 'bg-white opacity-100 border-none ' 
           : 'bg-gray-300 opacity-15 border-gray-400 border pointer-events-none cursor-not-allowed'}`}>
@@ -74,7 +74,8 @@ export function AccessPlaylist() {
             <input className='rounded-md p-2 bg-gray-600 text-white hover:cursor-pointer' 
                   type="submit" 
                   id="Access Playlist"
-                  value={`Access Playlist ${authStatus=='logging'? "Logging": ""}`}
+                  // value={`Access Playlist ${authStatus=='logging'? "Logging": ""}`}
+                  value={`Access Playlist ${authStatus}`}
                   onClick={handleClickSubmit}/>
           </form>
         </div>
