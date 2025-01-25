@@ -1,6 +1,7 @@
-import { useContext, useState } from "react"
-import { StreamingServiceContext } from "../context/StreamingServiceContext"
+import { useState } from "react"
+// import { StreamingServiceContext } from "../context/StreamingServiceContext"
 // import { LinkIcon, LockIcon } from "lucide-react"
+import { useServiceStore } from "../context/useServiceStore";
 import { GoLink } from "react-icons/go";
 import { MdOutlineLock } from "react-icons/md";
 import { Separator } from "./ui/separator"
@@ -9,7 +10,7 @@ import { fetchPlaylist } from "../api/fetchPlaylist"
 import '../index.css'
 
 export function AccessPlaylist() {
-  const { originService } = useContext(StreamingServiceContext)
+  const originService = useServiceStore((state) => state.originService)
   
   const [playlistUrl, setPlaylistUrl] = useState()
   const [authStatus, setAuthStatus] = useState()

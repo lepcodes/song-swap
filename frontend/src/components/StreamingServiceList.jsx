@@ -4,8 +4,7 @@ import deezer_logo from "../assets/icons/deezer.svg"
 import tidal_logo from "../assets/icons/tidal.svg"
 import apple_music_logo from "../assets/icons/apple_music.svg"
 import amazon_music_logo from "../assets/icons/amazon_music.svg"
-import { StreamingServiceContext } from "../context/StreamingServiceContext"
-import { useContext } from "react"
+import { useServiceStore } from "../context/useServiceStore";
 
 const availableServices = [
   {
@@ -34,9 +33,10 @@ const availableServices = [
   }
 ]
 
-export default function StreamingServiceList({source}){
-  const {setOriginService, setTargetService} = useContext(StreamingServiceContext)
-  
+export default function StreamingServiceList({source}){  
+
+  const {setOriginService, setTargetService} = useServiceStore((state) => state)
+
   const handleClick = (service) => {
     return(
       () => {

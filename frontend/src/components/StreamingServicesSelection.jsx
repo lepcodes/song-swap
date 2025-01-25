@@ -14,15 +14,14 @@ import { FaPlus } from "react-icons/fa6";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { RxCross2 } from "react-icons/rx";
 import StreamingServiceList from "../components/StreamingServiceList";
-import { StreamingServiceContext } from "../context/StreamingServiceContext";
-import { useContext } from "react";
+import { useServiceStore } from "../context/useServiceStore";
 import '../index.css'
 
 
 
 export default function StreamingServicesSelection() {
-  const {originService, targetService} = useContext(StreamingServiceContext)
-
+  const originService = useServiceStore((state) => state.originService)
+  const targetService = useServiceStore((state) => state.targetService)
   return(
     <>
       <div className="selection shadow-lg flex flex-row justify-evenly gap-5 items-center flex-wrap bg-white rounded-lg p-4">
