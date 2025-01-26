@@ -154,6 +154,6 @@ async def status(request: Request):
         print(PLAYLIST_URL_ENDPOINT+playlist_id)
         if response.status_code==200:
             print(response.json())
-            return JSONResponse({"status": "success", "data": {'playlist_id': playlist_id}})
+            return JSONResponse({"status": "success", "data": response.json()}) 
     else:
         return JSONResponse({"status": "error", "message": "Playlist ID Not Found"})
