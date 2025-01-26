@@ -40,7 +40,7 @@ export default function Playlist({name, cover, owner, tracks}){
             <hr className="w-[96%]"/>
           </div>
 
-          <div className="flex flex-col m-4 gap-3 max-h-96 overflow-y-scroll">
+          <div className="flex flex-col m-4 gap-3 max-h-96 overflow-y-auto">
             {
               tracks.map((track) => {
                 return (

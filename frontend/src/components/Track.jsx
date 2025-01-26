@@ -1,11 +1,10 @@
-import { Checkbox } from "./ui/checkbox";
+// import { Checkbox } from "./ui/checkbox";
 
 export default function Track({name, cover, artist}){
-  console.log(artist)
   return (
     <>
       <div className="flex flex-row gap-5 w-full items-center pl-0">
-        <Checkbox/>
+        {/* <Checkbox/> */}
         <div className="flex flex-row items-center gap-2">
           <img className="w-16 h-16 rounded-xl" src={cover} alt="cover"/>
           <div className="h-16 flex flex-col justify-evenly gap-2">

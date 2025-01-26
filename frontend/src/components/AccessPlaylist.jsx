@@ -8,10 +8,14 @@ import { Separator } from "./ui/separator"
 import { oauth } from "../api/oauth"
 import { fetchPlaylist } from "../api/fetchPlaylist"
 import '../index.css'
+import { usePlaylistStore } from "../context/usePlaylistStore";
 
 export function AccessPlaylist() {
+  // Global States
   const originService = useServiceStore((state) => state.originService)
+  const setPlaylists = usePlaylistStore((state) => state.setPlaylists)
   
+  // Local States
   const [playlistUrl, setPlaylistUrl] = useState()
   const [authStatus, setAuthStatus] = useState()
   
@@ -35,6 +39,7 @@ export function AccessPlaylist() {
 
     if (oauth_status === 'logged'){
       const { status, data } = await fetchPlaylist(playlistUrl)
+      setPlaylists(data)
       console.log(status)
       console.log(data)
     }
@@ -89,6 +94,7 @@ export function AccessPlaylist() {
           :
           <></>
         }
+        
       </div>
     </>    
   )
