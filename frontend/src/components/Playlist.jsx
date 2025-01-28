@@ -8,7 +8,7 @@ export default function Playlist({name, cover, owner, tracks, duration}){
   
   return ( 
     <>
-      <Collapsible className="flex flex-col gap-2 w-full border-gray-200 border rounded-lg shadow-sm">
+      <Collapsible className="flex flex-col gap-2 w-full border-gray-200 border rounded-lg shadow-xs">
         <div className="flex flex-row relative flex-wrap justify-start items-center m-4 gap-4">
           <Checkbox 
             className="w-5 h-5"

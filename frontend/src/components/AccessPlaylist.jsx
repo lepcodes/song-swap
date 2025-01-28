@@ -79,9 +79,9 @@ export function AccessPlaylist() {
           </button>
 
           <div className="flex items-center w-full my-2"> 
-            <Separator className="w-[30%] flex-grow" /> 
+            <Separator className="w-[30%] grow" /> 
             <span className="px-4">or</span> 
-            <Separator className="w-[30%] flex-grow" /> 
+            <Separator className="w-[30%] grow" /> 
           </div> 
 
           <form action="" className="flex flex-col gap-4 w-full">

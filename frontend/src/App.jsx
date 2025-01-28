@@ -8,7 +8,7 @@ export default function App() {
   
   return (
     <>  
-      <div className="main font-lexendExa h-screen">
+      <div className="main font-lexend-exa h-screen">
 
         <Header/>
         
