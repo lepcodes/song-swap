@@ -4,7 +4,7 @@ import { Separator } from "./ui/separator"
 import { Checkbox } from "./ui/checkbox"
 import { IoIosArrowDown } from "react-icons/io";
 
-export default function Playlist({name, cover, owner, tracks}){
+export default function Playlist({name, cover, owner, tracks, duration}){
   
   return ( 
     <>
@@ -24,9 +24,9 @@ export default function Playlist({name, cover, owner, tracks}){
             <div className="flex flex-wrap gap-x-6">
               <p>{owner}</p>
               <Separator className='h-6' orientation="vertical"/> 
-              <p>{2} tracks</p>
+              <p>{tracks.length} tracks</p>
               <Separator className='h-6' orientation="vertical"/>
-              <p>{"2:30"} hours</p>
+              <p>{(duration / 1000 / 60 / 60).toFixed(1)} hours</p>
             </div>
           </div>
 
@@ -45,10 +45,10 @@ export default function Playlist({name, cover, owner, tracks}){
               tracks.map((track) => {
                 return (
                   <Track
-                    key={track.track.id}
-                    name={track.track.name}
-                    cover={track.track.album.images[2].url}
-                    artist={track.track.album.artists[0].name}
+                    key={track.id}
+                    name={track.name}
+                    cover={track.cover}
+                    artist={track.artist}
                   />
                 )
               })

@@ -16,9 +16,10 @@ export default function PlaylistDisplayList() {
                 <Playlist
                   key = {playlist.id}
                   name = {playlist.name}
-                  owner = {playlist.owner.display_name}
-                  cover = {playlist.images[0].url}
-                  tracks = {playlist.tracks.items}
+                  owner = {playlist.owner}
+                  cover = {playlist.cover}
+                  tracks = {playlist.tracks}
+                  duration = {playlist.duration}
                 />
               )
             })

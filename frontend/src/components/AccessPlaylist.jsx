@@ -1,12 +1,18 @@
 import { useState } from "react"
-// import { StreamingServiceContext } from "../context/StreamingServiceContext"
-// import { LinkIcon, LockIcon } from "lucide-react"
 import { useServiceStore } from "../context/useServiceStore";
 import { GoLink } from "react-icons/go";
 import { MdOutlineLock } from "react-icons/md";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog"
 import { Separator } from "./ui/separator"
 import { oauth } from "../api/oauth"
 import { fetchPlaylist } from "../api/fetchPlaylist"
+import { fetchAccountPlaylists } from "../api/fetchAccountPlaylists"
 import '../index.css'
 import { usePlaylistStore } from "../context/usePlaylistStore";
 
@@ -14,20 +20,29 @@ export function AccessPlaylist() {
   // Global States
   const originService = useServiceStore((state) => state.originService)
   const setPlaylists = usePlaylistStore((state) => state.setPlaylists)
+  const setAccountPlaylists = usePlaylistStore((state) => state.setAccountPlaylists)
   
   // Local States
   const [playlistUrl, setPlaylistUrl] = useState()
   const [authStatus, setAuthStatus] = useState()
-  
+  const [fetchStatus, setFetchStatus] = useState()
+
   const handlePlaylistUrl = (event) => {
     setPlaylistUrl(event.target.value)
   }
 
   const handleClickAccount = async () => {
     setAuthStatus('logging')
-
     const oauth_status = await oauth()
     setAuthStatus(oauth_status)
+    setFetchStatus('fetching')
+    if (oauth_status === 'logged'){
+      const { status, data } = await fetchAccountPlaylists()
+      console.log(data)
+      console.log(status)
+      setFetchStatus(status)
+      setAccountPlaylists(data)
+    }
   }
 
   const handleClickSubmit = async (event) => {
@@ -95,6 +110,18 @@ export function AccessPlaylist() {
           <></>
         }
         
+      </div>
+      <div>
+        <AlertDialog open={authStatus === 'logging' || fetchStatus === 'fetching'} >
+          <AlertDialogContent className='w-96'>
+            <AlertDialogHeader className='flex flex-col gap-5'>
+              <AlertDialogTitle className='text-4xl'>Loading...</AlertDialogTitle>
+              <AlertDialogDescription className='text-xl'>
+                Getting your playlists. Hold on a sec.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>    
   )

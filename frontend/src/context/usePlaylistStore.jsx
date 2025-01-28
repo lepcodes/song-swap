@@ -6,5 +6,10 @@ export const usePlaylistStore = create((set) => ({
         set((state) => ({
             playlists: [...state.playlists, playlist]
         }))
+    },
+    setAccountPlaylists: (playlists) => {
+        set(() => ({
+            playlists: playlists
+        }))
     }
 }))
