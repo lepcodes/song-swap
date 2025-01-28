@@ -53,6 +53,7 @@ def get_auth_status():
         return json.load(file)
 
 def isAuthenticated():
+    return False
     if not os.path.exists(TOKEN_PATH) or os.stat(TOKEN_PATH).st_size == 0:
         return False
     with open(TOKEN_PATH, 'r') as token_file:
@@ -63,6 +64,26 @@ def isAuthenticated():
         except json.JSONDecodeError:
             return False
     return False
+
+def extract_relevant_data(playlist):
+    tracks = []
+    playlist_duration = 0
+    for track in playlist['tracks']['items']:
+        tracks.append({
+            'id': track['track']['id'],
+            'name': track['track']['name'],
+            'cover': track['track']['album']['images'][2]['url'],
+            'artist': track['track']['artists'][0]['name']
+        })
+        playlist_duration += track['track']['duration_ms']
+    return {
+        'id': playlist['id'],
+        'name': playlist['name'],
+        'owner': playlist['owner']['display_name'],
+        'cover': playlist['images'][0]['url'],
+        'tracks': tracks,
+        'duration': playlist_duration
+    }
 
 @app.get("/")
 async def root():
@@ -153,7 +174,23 @@ async def status(request: Request):
                                 headers={ 'Authorization': 'Bearer ' + token })
         print(PLAYLIST_URL_ENDPOINT+playlist_id)
         if response.status_code==200:
-            print(response.json())
-            return JSONResponse({"status": "success", "data": response.json()}) 
+            return JSONResponse({"status": "success", "data": extract_relevant_data(response.json())}) 
     else:
         return JSONResponse({"status": "error", "message": "Playlist ID Not Found"})
+
+@app.get("/account-playlists")
+async def account_playlists(request: Request):
+    with open(TOKEN_PATH, 'r') as token_file:
+        token_json = json.load(token_file)
+    token = token_json['access_token']
+    response = requests.get("https://api.spotify.com/v1/me/playlists",
+                headers={ 'Authorization': 'Bearer ' + token })
+    
+    playlists = []
+    print(response.json())
+    for playlist in response.json()['items']:
+        print(playlist['name'])
+        response = requests.get(playlist['href'],
+                    headers={ 'Authorization': 'Bearer ' + token })
+        playlists.append(extract_relevant_data(response.json()))
+    return JSONResponse({"status": "success", "data": playlists})
