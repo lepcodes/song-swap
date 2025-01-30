@@ -69,13 +69,19 @@ def extract_relevant_data(playlist):
     tracks = []
     playlist_duration = 0
     for track in playlist['tracks']['items']:
-        tracks.append({
-            'id': track['track']['id'],
-            'name': track['track']['name'],
-            'cover': track['track']['album']['images'][2]['url'],
-            'artist': track['track']['artists'][0]['name']
-        })
-        playlist_duration += track['track']['duration_ms']
+        try:
+            tracks.append({
+                'id': track['track']['id'],
+                'name': track['track']['name'],
+                'cover': track['track']['album']['images'][2]['url'],
+                'artist': track['track']['artists'][0]['name']
+            })
+            playlist_duration += track['track']['duration_ms']
+        except Exception as e:
+            print(e)
+            print('Error Track')
+            print(track)
+        
     return {
         'id': playlist['id'],
         'name': playlist['name'],
@@ -187,7 +193,6 @@ async def account_playlists(request: Request):
                 headers={ 'Authorization': 'Bearer ' + token })
     
     playlists = []
-    print(response.json())
     for playlist in response.json()['items']:
         print(playlist['name'])
         response = requests.get(playlist['href'],
