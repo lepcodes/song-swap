@@ -110,6 +110,7 @@ def refresh_token(user_id):
                         timedelta(seconds=token_data['expires_in'])).isoformat(),
                     user_id,))
     con.commit()
+    return
 
 
 def get_valid_token(user_id):
@@ -240,7 +241,7 @@ async def account_playlists(request: Request):
     if user_id:
         response = requests.get("https://api.spotify.com/v1/me/playlists",
                                 headers={'Authorization': 'Bearer ' + token})
-
+        print(response.status_code)
         playlists = []
         for playlist in response.json()['items']:
             print(playlist['name'])
