@@ -2,7 +2,8 @@ import requests
 import urllib.parse
 import uuid
 import base64
-import sqlite3
+# Change sqlite3 to supabase
+import supabase
 import re
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -37,16 +38,11 @@ PLAYLIST_URL_ENDPOINT = 'https://api.spotify.com/v1/playlists/'
 
 app = FastAPI()
 
-con = sqlite3.connect('song-swap.db')
-cur = con.cursor()
-cur.execute('''CREATE TABLE IF NOT EXISTS
-            users(user_id TEXT PRIMARY KEY,
-            access_token TEXT,
-            refresh_token TEXT,
-            expires_in TEXT,
-            auth_status TEXT)''')
+supabase = supabase.create_client(
+    supabase_url='https://petsvjivlodaiiqepasv.supabase.co',
+    supabase_key='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBldHN2aml2bG9kYWlpcWVwYXN2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczODQ3NDI2NCwiZXhwIjoyMDU0MDUwMjY0fQ.m8uhx5ucw_OKM7SttbGFkYc-Y5XgOfqBkba7fRoF-hY'
+)
 
-con.commit()
 
 app.add_middleware(
     CORSMiddleware,
@@ -85,7 +81,8 @@ def extract_relevant_data(playlist):
 
 
 def refresh_token(user_id):
-    ref_token = cur.execute("SELECT refresh_token FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    response = supabase.table('song-swap-db').select('refresh_token').eq('user_id', user_id).execute()
+    ref_token = response.data[0]['refresh_token']
     response = requests.post(
         url=TOKEN_URL,
         headers=TOKEN_HEADERS,
@@ -101,29 +98,28 @@ def refresh_token(user_id):
         return
 
     token_data = response.json()
-    cur.execute('''UPDATE users SET
-                access_token = ?,
-                expires_in = ?
-                WHERE user_id = ?''',
-                (token_data['access_token'],
-                    (datetime.now() +
-                        timedelta(seconds=token_data['expires_in'])).isoformat(),
-                    user_id,))
-    con.commit()
+    supabase.table('song-swap-db').update(
+        {'access_token': token_data['access_token'],
+         'expires_in': (datetime.now() +
+                        timedelta(seconds=token_data['expires_in'])).isoformat()}
+    ).eq('user_id', user_id).execute()
+
     return
 
 
 def get_valid_token(user_id):
     # TODO: Error Handling and Take into account Expiration
-    token = cur.execute("SELECT access_token FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    expired = cur.execute("SELECT expires_in FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    response = supabase.table('song-swap-db').select('access_token').eq('user_id', user_id).execute()
+    token = response.data[0]['access_token']
+    response = supabase.table('song-swap-db').select('expires_in').eq('user_id', user_id).execute()
+    expired = response.data[0]['expires_in']
     if token:
-        print(expired[0])
+        print(expired)
         print(datetime.now())
-        if datetime.now() > datetime.fromisoformat(expired[0]):
+        if datetime.now() > datetime.fromisoformat(expired):
             print('Expired')
             refresh_token(user_id)
-        return token[0]
+        return token
 
 
 @app.get("/")
@@ -138,7 +134,8 @@ async def oauth(request: Request, response: Response):
 
     if user_id:
         # TODO: Error Handling
-        user = cur.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        response = supabase.table('song-swap-db').select('*').eq('user_id', user_id).execute()
+        user = response.data[0]
         if user:
             return JSONResponse({"status": "success", "data": ""})
         else:
@@ -146,16 +143,16 @@ async def oauth(request: Request, response: Response):
 
     else:
         # If Not Previous User Respond with Auth URL
+        # Create new user
         new_user_id = str(uuid.uuid4())
-        cur.execute('''INSERT INTO users
-                    (user_id,
-                    access_token,
-                    refresh_token,
-                    expires_in,
-                    auth_status)
-                    VALUES (?, '', '', '', 'logging')''',
-                    (new_user_id,))
-        con.commit()
+        supabase.table('song-swap-db').insert(
+            {'user_id': new_user_id,
+             'access_token': '',
+             'refresh_token': '',
+             'expires_in': None,
+             'auth_status': 'logging'}
+        ).execute()
+
         response = JSONResponse({"status": "success", "data":
                                  {"oauth_url": AUTH_URL + urllib.parse.urlencode(AUTH_PARAMS)}})
         response.set_cookie(
@@ -185,18 +182,12 @@ async def callback(request: Request):
         )
         if response.status_code == 200:
             token_data = response.json()
-            cur.execute('''UPDATE users
-                        SET
-                        access_token = ?,
-                        refresh_token = ?,
-                        expires_in = ?,
-                        auth_status = 'logged'
-                        WHERE user_id = ?''',
-                        (token_data['access_token'],
-                            token_data['refresh_token'],
-                            (datetime.now() + timedelta(seconds=token_data['expires_in'])).isoformat(),
-                            user_id,))
-            con.commit()
+            supabase.table('song-swap-db').update(
+                {'access_token': token_data['access_token'],
+                 'refresh_token': token_data['refresh_token'],
+                 'expires_in': (datetime.now() + timedelta(seconds=token_data['expires_in'])).isoformat(),
+                 'auth_status': 'logged'}
+            ).eq('user_id', user_id).execute()
             # redirect to home page of web app
             return RedirectResponse(url='http://localhost:5173')
         return {'status': 'error', 'message': 'Code Not Found'}
@@ -207,8 +198,9 @@ async def callback(request: Request):
 async def oauth_status(request: Request):
     user_id = request.cookies.get('user_id')
     try:
-        status = cur.execute('''SELECT auth_status FROM users WHERE user_id = ?''', (user_id,)).fetchone()
-        return JSONResponse({"status": status[0]})
+        response = supabase.table('song-swap-db').select('auth_status').eq('user_id', user_id).execute()
+        status = response.data[0]['auth_status']
+        return JSONResponse({"status": status})
     except Exception as e:
         print(e)
         return JSONResponse({"status": 'error'})
