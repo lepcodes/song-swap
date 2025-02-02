@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const oauth = async () => {
-  const response = await axios.get('http://localhost:8000/oauth')
+  const response = await axios.get('http://localhost:8000/oauth', {withCredentials: true});
   const { status, data } = response.data;
   if (status == 'success'){
     if (data.oauth_url){
@@ -9,7 +9,7 @@ export const oauth = async () => {
       return new Promise((resolve, reject) => {
         const intervalId = setInterval(async () => {
             try {
-                const statusResponse = await axios.get('http://localhost:8000/oauth-status');
+                const statusResponse = await axios.get('http://localhost:8000/oauth-status', {withCredentials: true});
                 const { status: oauthStatus } = statusResponse.data;
 
                 if (oauthStatus !== 'logging') {

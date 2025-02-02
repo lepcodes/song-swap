@@ -73,7 +73,7 @@ export function AccessPlaylist() {
           <h3 className="mb-5">
             Choose how you want to access your playlist
           </h3>
-          <button className="w-full p-2 rounded-lg bg-black text-white text-base"
+          <button className="w-full p-2 rounded-lg bg-black text-white text-base hover:cursor-pointer"
                   onClick={handleClickAccount}>
             Sign in with Account
           </button>

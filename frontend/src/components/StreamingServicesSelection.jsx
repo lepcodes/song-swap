@@ -31,7 +31,7 @@ export default function StreamingServicesSelection() {
         <Separator orientation='horizontal' className='m-0'/>
         <div className='flex justify-evenly items-center gap-5'>
           <Drawer>
-            <DrawerTrigger className="rounded-2xl" asChild>
+            <DrawerTrigger className="rounded-2xl hover:cursor-pointer" asChild>
               <div className='group h-28 w-28 p-2 flex justify-center items-center border border-gray-200 hover:bg-gray-100'>
               {
                 (originService.name) ?
@@ -62,7 +62,7 @@ export default function StreamingServicesSelection() {
           <FaArrowRightLong className="w-12 h-12 text-gray-600"/>
 
           <Drawer>
-            <DrawerTrigger className="rounded-2xl" asChild>
+            <DrawerTrigger className="rounded-2xl hover:cursor-pointer" asChild>
               <div className='group h-28 w-28 p-2 flex justify-center items-center border border-gray-200 hover:bg-gray-100'>
               {
                 (targetService.name) ?
