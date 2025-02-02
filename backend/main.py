@@ -2,15 +2,15 @@ import requests
 import urllib.parse
 import uuid
 import base64
-# Change sqlite3 to supabase
 import supabase
 import re
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta
 
-# STATE = ''
 CLIENT_ID = 'd2c681f1824c46c88e15e47e794e9037'
 CLIENT_SECRET = 'd5ed08c6a32942a69b1cf29d49dc2207'
 AUTH_URL = 'https://accounts.spotify.com/authorize?'
@@ -38,9 +38,11 @@ PLAYLIST_URL_ENDPOINT = 'https://api.spotify.com/v1/playlists/'
 
 app = FastAPI()
 
+load_dotenv()
+os.environ['SUPABASE_KEY']
 supabase = supabase.create_client(
-    supabase_url='https://petsvjivlodaiiqepasv.supabase.co',
-    supabase_key='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBldHN2aml2bG9kYWlpcWVwYXN2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczODQ3NDI2NCwiZXhwIjoyMDU0MDUwMjY0fQ.m8uhx5ucw_OKM7SttbGFkYc-Y5XgOfqBkba7fRoF-hY'
+    supabase_url=os.environ['SUPABASE_URL'],
+    supabase_key=os.environ['SUPABASE_KEY']
 )
 
 
