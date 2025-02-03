@@ -11,10 +11,21 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta
 
-CLIENT_ID = 'd2c681f1824c46c88e15e47e794e9037'
-CLIENT_SECRET = 'd5ed08c6a32942a69b1cf29d49dc2207'
+# Load environment variables
+load_dotenv()
+
+os.environ['SUPABASE_KEY']
+supabase = supabase.create_client(
+    supabase_url=os.environ['SUPABASE_URL'],
+    supabase_key=os.environ['SUPABASE_KEY']
+)
+CLIENT_ID = os.environ['CLIENT_ID']
+CLIENT_SECRET = os.environ['CLIENT_SECRET']
+REDIRECT_URI = os.environ['BACKEND_URL']
+WEB_URL = os.environ['FRONTEND_URL']
+
+TOKEN_URL = 'https://accounts.spotify.com/api/token'
 AUTH_URL = 'https://accounts.spotify.com/authorize?'
-REDIRECT_URI = 'http://localhost:8000/callback'
 SCOPE = 'playlist-read-private'
 AUTH_PARAMS = {
     'client_id': CLIENT_ID,
@@ -23,32 +34,19 @@ AUTH_PARAMS = {
     'scope': SCOPE
 }
 
-TOKEN_PATH = 'token.json'
-TOKEN_URL = 'https://accounts.spotify.com/api/token'
 SCOPE = 'playlist-read-private'
 TOKEN_HEADERS = {
     'Authorization': 'Basic ' +
     base64.b64encode((CLIENT_ID + ':' + CLIENT_SECRET).encode()).decode(),
     'Content-Type': 'application/x-www-form-urlencoded'
 }
-
-WEB_URL = 'http://localhost:5173'
 PLAYLIST_URL_ENDPOINT = 'https://api.spotify.com/v1/playlists/'
-
 
 app = FastAPI()
 
-load_dotenv()
-os.environ['SUPABASE_KEY']
-supabase = supabase.create_client(
-    supabase_url=os.environ['SUPABASE_URL'],
-    supabase_key=os.environ['SUPABASE_KEY']
-)
-
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[WEB_URL],  # Your React app's URL
+    allow_origins=[WEB_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -82,6 +80,21 @@ def extract_relevant_data(playlist):
     }
 
 
+def get_valid_token(user_id):
+    # TODO: Error Handling and Take into account Expiration
+    response = supabase.table('song-swap-db').select('access_token').eq('user_id', user_id).execute()
+    token = response.data[0]['access_token']
+    response = supabase.table('song-swap-db').select('expires_in').eq('user_id', user_id).execute()
+    expire_at = response.data[0]['expires_in']
+    if token:
+        print(expire_at)
+        print(datetime.now())
+        if datetime.now() > datetime.fromisoformat(expire_at):
+            print('Expired Token, Refreshing...')
+            token = refresh_token(user_id)
+        return token
+
+
 def refresh_token(user_id):
     response = supabase.table('song-swap-db').select('refresh_token').eq('user_id', user_id).execute()
     ref_token = response.data[0]['refresh_token']
@@ -106,22 +119,7 @@ def refresh_token(user_id):
                         timedelta(seconds=token_data['expires_in'])).isoformat()}
     ).eq('user_id', user_id).execute()
 
-    return
-
-
-def get_valid_token(user_id):
-    # TODO: Error Handling and Take into account Expiration
-    response = supabase.table('song-swap-db').select('access_token').eq('user_id', user_id).execute()
-    token = response.data[0]['access_token']
-    response = supabase.table('song-swap-db').select('expires_in').eq('user_id', user_id).execute()
-    expired = response.data[0]['expires_in']
-    if token:
-        print(expired)
-        print(datetime.now())
-        if datetime.now() > datetime.fromisoformat(expired):
-            print('Expired')
-            refresh_token(user_id)
-        return token
+    return token_data['access_token']
 
 
 @app.get("/")
@@ -136,64 +134,76 @@ async def oauth(request: Request, response: Response):
 
     if user_id:
         # TODO: Error Handling
-        response = supabase.table('song-swap-db').select('*').eq('user_id', user_id).execute()
-        user = response.data[0]
+        query = supabase.table('song-swap-db').select('*').eq('user_id', user_id).execute()
+        user = query.data[0]
         if user:
-            return JSONResponse({"status": "success", "data": ""})
-        else:
-            return JSONResponse({"status": "error", "message": "User Not Found in Database"})
+            return JSONResponse({"status": "success", "message": "User Logged in", "data": ''})
 
-    else:
-        # If Not Previous User Respond with Auth URL
-        # Create new user
-        new_user_id = str(uuid.uuid4())
-        supabase.table('song-swap-db').insert(
-            {'user_id': new_user_id,
-             'access_token': '',
-             'refresh_token': '',
-             'expires_in': None,
-             'auth_status': 'logging'}
-        ).execute()
+    # If Not Previous User Respond with Auth URL
+    new_user_id = str(uuid.uuid4())
 
-        response = JSONResponse({"status": "success", "data":
-                                 {"oauth_url": AUTH_URL + urllib.parse.urlencode(AUTH_PARAMS)}})
-        response.set_cookie(
-            key="user_id",
-            value=new_user_id,
-            max_age=int(timedelta(days=30).total_seconds()),  # Expires in 1 month
-            httponly=True,  # Prevent JavaScript access
-            secure=False,    # Allow cookies over HTTP (for local testing)
-            samesite="lax"   # Prevent CSRF attacks
-        )
-        return response
+    # Create placeholder user in database
+    supabase.table('song-swap-db').insert(
+        {
+            'user_id': new_user_id,
+            'access_token': '',
+            'refresh_token': '',
+            'expires_in': None,
+            'auth_status': 'logging'  # Initial status
+        }
+    ).execute()
+
+    # Redirect to OAuth URL and set the user_id cookie
+    response = JSONResponse({"status": "success", "data":
+                            {"oauth_url": AUTH_URL + urllib.parse.urlencode(AUTH_PARAMS)}})
+    response.set_cookie(
+        key="user_id",
+        value=new_user_id,
+        max_age=int(timedelta(days=30).total_seconds()),  # Expires in 1 month
+        httponly=True,  # Prevent JavaScript access
+        secure=False,    # Allow cookies over HTTP (for local testing)
+        samesite="lax"   # Prevent CSRF attacks
+    )
+    return response
 
 
 @app.get("/callback")
 async def callback(request: Request):
     code = request.query_params.get('code')
     user_id = request.cookies.get('user_id')
-    if code:
-        response = requests.post(
-            url=TOKEN_URL,
-            headers=TOKEN_HEADERS,
-            data={
-                'grant_type': 'authorization_code',
-                'code': code,
-                'redirect_uri': REDIRECT_URI
-            }
-        )
-        if response.status_code == 200:
-            token_data = response.json()
-            supabase.table('song-swap-db').update(
-                {'access_token': token_data['access_token'],
-                 'refresh_token': token_data['refresh_token'],
-                 'expires_in': (datetime.now() + timedelta(seconds=token_data['expires_in'])).isoformat(),
-                 'auth_status': 'logged'}
-            ).eq('user_id', user_id).execute()
-            # redirect to home page of web app
-            return RedirectResponse(url='http://localhost:5173')
-        return {'status': 'error', 'message': 'Code Not Found'}
-    return {'status': 'error', 'message': 'User Not Found'}
+    if not code:
+        return JSONResponse({"status": "error", "message": "Code Not Found"})
+
+    if not user_id:
+        return JSONResponse({"status": "error", "message": "User Not Found in Cookie"})
+
+    response = requests.post(
+        url=TOKEN_URL,
+        headers=TOKEN_HEADERS,
+        data={
+            'grant_type': 'authorization_code',
+            'code': code,
+            'redirect_uri': REDIRECT_URI
+        }
+    )
+    if response.status_code != 200:
+        print('Failed to exchange code for tokens')
+        supabase.table('song-swap-db').update(
+            {'auth_status': 'error'}
+        ).eq('user_id', user_id).execute()
+        return JSONResponse({"status": "error", "message": "Failed to exchange code for tokens"})
+
+    token_data = response.json()
+    print('Logged in')
+    supabase.table('song-swap-db').update(
+        {'access_token': token_data['access_token'],
+         'refresh_token': token_data['refresh_token'],
+         'expires_in': (datetime.now() + timedelta(seconds=token_data['expires_in'])).isoformat(),
+         'auth_status': 'logged'}
+    ).eq('user_id', user_id).execute()
+
+    # Redirect to home page of web app
+    return RedirectResponse(url=WEB_URL)
 
 
 @app.get("/oauth-status")
@@ -211,37 +221,39 @@ async def oauth_status(request: Request):
 @app.get("/playlist")
 async def playlist(request: Request):
     user_id = request.cookies.get('user_id')
-    if user_id:
-        playlist_url = request.query_params.get('url')
-        match = re.search(r'playlist\/([a-zA-Z0-9]+)', playlist_url)
-        if match:
-            playlist_id = match.group(1)
-            token = get_valid_token(user_id)
-            response = requests.get(PLAYLIST_URL_ENDPOINT+playlist_id,
-                                    headers={'Authorization': 'Bearer ' + token})
-            print(PLAYLIST_URL_ENDPOINT+playlist_id)
-            if response.status_code == 200:
-                return JSONResponse({"status": "success", "data": extract_relevant_data(response.json())})
-        else:
-            return JSONResponse({"status": "error", "message": "Playlist ID Not Found"})
-    else:
-        return JSONResponse({"status": "error", "message": "User Not Found"})
+    if not user_id:
+        return JSONResponse({"status": "error", "message": "User Not Found in Cookie"})
+
+    playlist_url = request.query_params.get('url')
+    match = re.search(r'playlist\/([a-zA-Z0-9]+)', playlist_url)
+    if not match:
+        return JSONResponse({"status": "error", "message": "Playlist ID Not Found"})
+
+    playlist_id = match.group(1)
+    token = get_valid_token(user_id)
+    response = requests.get(PLAYLIST_URL_ENDPOINT+playlist_id,
+                            headers={'Authorization': 'Bearer ' + token})
+    if response.status_code != 200:
+        return JSONResponse({"status": "error", "message": "Failed to fetch playlist"})
+
+    return JSONResponse({"status": "success", "data": extract_relevant_data(response.json())})
 
 
 @app.get("/account-playlists")
 async def account_playlists(request: Request):
     user_id = request.cookies.get('user_id')
     token = get_valid_token(user_id)
-    if user_id:
-        response = requests.get("https://api.spotify.com/v1/me/playlists",
+    if not user_id:
+        return JSONResponse({"status": "error", "message": "User Not Found in Cookie"})
+
+    response = requests.get("https://api.spotify.com/v1/me/playlists",
+                            headers={'Authorization': 'Bearer ' + token})
+    if response.status_code != 200:
+        return JSONResponse({"status": "error", "message": "Failed to fetch playlists"})
+
+    playlists = []
+    for playlist in response.json()['items']:
+        response = requests.get(playlist['href'],
                                 headers={'Authorization': 'Bearer ' + token})
-        print(response.status_code)
-        playlists = []
-        for playlist in response.json()['items']:
-            print(playlist['name'])
-            response = requests.get(playlist['href'],
-                                    headers={'Authorization': 'Bearer ' + token})
-            playlists.append(extract_relevant_data(response.json()))
-        return JSONResponse({"status": "success", "data": playlists})
-    else:
-        return JSONResponse({"status": "error", "message": "User Not Found"})
+        playlists.append(extract_relevant_data(response.json()))
+    return JSONResponse({"status": "success", "data": playlists})
