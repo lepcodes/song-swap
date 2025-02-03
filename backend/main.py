@@ -21,7 +21,7 @@ supabase = supabase.create_client(
 )
 CLIENT_ID = os.environ['CLIENT_ID']
 CLIENT_SECRET = os.environ['CLIENT_SECRET']
-REDIRECT_URI = os.environ['BACKEND_URL']
+REDIRECT_URI = os.environ['BACKEND_URL']+'/callback'
 WEB_URL = os.environ['FRONTEND_URL']
 
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
