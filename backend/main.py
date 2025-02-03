@@ -161,8 +161,8 @@ async def oauth(request: Request, response: Response):
         value=new_user_id,
         max_age=int(timedelta(days=30).total_seconds()),  # Expires in 1 month
         httponly=True,  # Prevent JavaScript access
-        secure=False,    # Allow cookies over HTTP (for local testing)
-        samesite="lax"   # Prevent CSRF attacks
+        secure=True,    # Allow cookies over HTTP (for local testing)
+        samesite="None"   # Prevent CSRF attacks
     )
     return response
 
