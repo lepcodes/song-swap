@@ -22,7 +22,7 @@ supabase = supabase.create_client(
 CLIENT_ID = os.environ['CLIENT_ID']
 CLIENT_SECRET = os.environ['CLIENT_SECRET']
 REDIRECT_URI = os.environ['BACKEND_URL']+'/callback'
-WEB_URL = os.environ['FRONTEND_URL']
+FRONTEND_URL = os.environ['FRONTEND_URL']
 
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 AUTH_URL = 'https://accounts.spotify.com/authorize?'
@@ -46,7 +46,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[FRONTEND_URL, 'http://localhost:5173'],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -135,9 +135,13 @@ async def oauth(request: Request, response: Response):
     if user_id:
         # TODO: Error Handling
         query = supabase.table('song-swap-db').select('*').eq('user_id', user_id).execute()
-        user = query.data[0]
-        if user:
-            return JSONResponse({"status": "success", "message": "User Logged in", "data": ''})
+        user = query.data[0] if query.data else None
+        if user and user['auth_status'] == 'logged':
+            return JSONResponse({"status": "success", "message": "User Logged in", "data": user})
+        elif user and user['auth_status'] == 'logging':
+            return JSONResponse({"status": "error", "message": "User is logging in", "data": ''})
+        else:
+            return JSONResponse({"status": "error", "message": "User Not Logged in", "data": ''})
 
     # If Not Previous User Respond with Auth URL
     new_user_id = str(uuid.uuid4())
@@ -203,7 +207,7 @@ async def callback(request: Request):
     ).eq('user_id', user_id).execute()
 
     # Redirect to home page of web app
-    return RedirectResponse(url=WEB_URL)
+    return RedirectResponse(url=FRONTEND_URL)
 
 
 @app.get("/oauth-status")
