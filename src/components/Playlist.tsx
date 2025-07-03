@@ -18,7 +18,6 @@ export default function Playlist({id, name, cover, owner, num_tracks}: Playlist)
   const originService = useServiceStore((state) => state.originService)
   const discardAllTracks = usePlaylistStore((state) => state.discardAllTracks)
   const addAllTracks = usePlaylistStore((state) => state.addAllTracks)
-  const playlists = usePlaylistStore((state) => state.playlists)
   
   const fetchPlaylistTracks = async (): Promise<Track[]> => {
     const response = await fetch('/api/' + originService?.key + '/playlist-tracks?playlistId=' + id)
