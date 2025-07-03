@@ -75,7 +75,7 @@ export default function AccessPlaylist() {
 
   return (
     <>
-      <div className="access flex justify-center items-center bg-transparent p-0">
+      <div className="access flex justify-center items-center bg-transparent p-0 h-fit">
         <div className={`flex flex-col gap-2 items-center justify-evenly w-full h-full px-6 py-6 rounded-lg shadow-xs
           ${originService
           ? 'bg-white opacity-100 border' 

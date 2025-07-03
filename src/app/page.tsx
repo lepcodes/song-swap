@@ -5,7 +5,7 @@ import AccessPlaylist from "../components/AccessPlaylist";
 
 export default function Home() {
   return (
-    <div className="main font-lexend-exa h-screen">
+    <div className="main h-screen">
 
       <Header/>
 

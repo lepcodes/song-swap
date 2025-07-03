@@ -6,10 +6,10 @@ import { Separator } from "./ui/separator"
 import { Checkbox } from "./ui/checkbox"
 import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useServiceStore } from "../stores/useServiceStore";
 import { usePlaylistStore } from "../stores/usePlaylistStore";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 export default function Playlist({id, name, cover, owner, num_tracks}: Playlist){
   const [ isPlaylistChecked , setIsPlaylistChecked ] = useState(true)
@@ -19,22 +19,39 @@ export default function Playlist({id, name, cover, owner, num_tracks}: Playlist)
   const discardAllTracks = usePlaylistStore((state) => state.discardAllTracks)
   const addAllTracks = usePlaylistStore((state) => state.addAllTracks)
   
-  const fetchPlaylistTracks = async (): Promise<Track[]> => {
-    const response = await fetch('/api/' + originService?.key + '/playlist-tracks?playlistId=' + id)
-    const data: Track[] = await response.json()
+  const fetchPlaylistTracks = async ({ pageParam } : { pageParam: number }): Promise<TracksPage> => {
+    const response = await fetch(
+      `/api/${originService?.key}/playlist-tracks?playlistId=${id}&offset=${pageParam}&limit=100`
+    )
+    const data: TracksPage = await response.json()
+    data.nextOffset = data.nextOffset ? Number(data.nextOffset) : null
     return data
   }
   
-  const { data: tracks, status, isLoading } = useQuery({ 
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({ 
     enabled: shouldFetchTracks,
     queryKey: ['tracks'+id], 
-    queryFn: fetchPlaylistTracks 
+    queryFn: fetchPlaylistTracks,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextOffset,
+    
   })
+
+  const tracks = useMemo(() => {
+    return data?.pages.flatMap((page) => page.tracks);
+  }, [data?.pages]);
   
   const handleCheckedChangeDisplay = (checked: boolean) => {
     setIsPlaylistChecked(checked)
-    if (tracks && !checked){
-      const trackIds = tracks.map((track) => track.id)  
+    if (data?.pages && !checked){
+      const trackIds = data.pages.flatMap((page) => page.tracks.map((track) => track.id))
       discardAllTracks(id, trackIds)
     }
     else if (checked){
@@ -107,7 +124,7 @@ export default function Playlist({id, name, cover, owner, num_tracks}: Playlist)
           <div className="flex flex-col m-4 gap-3 max-h-96 overflow-y-auto">
             {
               status === 'success' &&
-              tracks.map((track) => {
+              tracks?.map((track) => {
                 return (
                   <Track
                     id={track.id}
@@ -119,6 +136,23 @@ export default function Playlist({id, name, cover, owner, num_tracks}: Playlist)
                   />
                 )
               })
+            }
+            {
+              status === 'success' && hasNextPage &&
+              <div className="flex flex-col w-full items-center justify-center gap-2">
+                <div className="w-[98%] h-px scale-y-[0.5] bg-gray-300"/>
+                {
+                  !isFetchingNextPage ?
+                  <button 
+                    onClick={() => fetchNextPage()}
+                    className="text-gray-400 p-2 hover:cursor-pointer hover:text-neutral-700"
+                    >
+                    <p>Load More</p>
+                  </button>
+                  :
+                  <MoonLoader className="mt-1" size={18}/>
+                }
+              </div>
             }
             {
               status === 'error' &&
