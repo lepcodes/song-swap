@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json()
     const tracks: Track[] = data.tracks.items.map(
-        (track: any) => { return {
+        (track: TrackRaw) => { return {
             id: track.track.id,
             name: track.track.name,
             cover: track.track.album.images[2].url,
