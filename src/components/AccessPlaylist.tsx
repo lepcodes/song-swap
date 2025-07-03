@@ -6,22 +6,17 @@ import { GoLink } from "react-icons/go";
 import { MdOutlineLock } from "react-icons/md";
 import { MoonLoader } from "react-spinners";
 import '../styles/globals.css'
-import { usePlaylistStore } from "../stores/usePlaylistStore";
+import { Message } from "../types/services";
 
 
 export default function AccessPlaylist() {
   // Global States
   const originService = useServiceStore((state) => state.originService)
-  const {
-    isFetchingAccountPlaylists,
-    setIsFetchingAccountPlaylists,
-    playlists,
-    setPlaylists,
-  } = usePlaylistStore()
+  const isAuthenticated = useServiceStore((state) => state.isAuthenticated)
+  const setIsAuthenticated = useServiceStore((state) => state.setIsAuthenticated)
   
   // Local States
   const [playlistUrl, setPlaylistUrl] = useState<string>('')
-  const [isPlaylistLoading, setIsPlaylistLoading] = useState(false)
   const [isAccountLoading, setIsAccountLoading] = useState(false)
 
   const handlePlaylistUrl: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -57,57 +52,58 @@ export default function AccessPlaylist() {
 
     const channel = new BroadcastChannel('auth');
     channel.onmessage = (e: MessageEvent) => {
-      const data = e.data;
-      console.log(data);
-      if (data){
-        setIsFetchingAccountPlaylists(true)
+      const data: Message = e.data;
+      if (data === 'success'){
+        setIsAuthenticated(true)
+        setIsAccountLoading(false)
+      }
+      else if (data === 'error'){
+        setIsAuthenticated(false)
+        setIsAccountLoading(false)
       }
     };
 
     return () => {
       channel.close();
     };
-  }, [isAccountLoading, setIsFetchingAccountPlaylists]);
+  }, [isAccountLoading, setIsAuthenticated]);
 
   useEffect(() => {
     setIsAccountLoading(false)
-    setIsPlaylistLoading(false)
-  }, [originService]);
-
-  useEffect(() => {
-    if (isFetchingAccountPlaylists){
-      fetch('/api/'+ originService?.key +'/account-playlists')
-    }
-  }, [isFetchingAccountPlaylists, originService]);
+    setIsAuthenticated(false)
+  }, [originService, setIsAuthenticated]);
 
   return (
     <>
-      <div className="access flex justify-center items- center bg-transparent p-0">
-        <div className={`flex flex-col gap-2 items-center justify-evenly w-full h-full px-6 py-6 border border-gray-200 rounded-lg shadow-lg
+      <div className="access flex justify-center items-center bg-transparent p-0">
+        <div className={`flex flex-col gap-2 items-center justify-evenly w-full h-full px-6 py-6 rounded-lg shadow-xs
           ${originService
-          ? 'bg-white opacity-100 border-none ' 
+          ? 'bg-white opacity-100 border' 
           : 'bg-gray-300 opacity-15 border-gray-400 border pointer-events-none cursor-not-allowed'}`}>
           <h2 className="text-xl font-bold text-center">
-            Access Your {originService?.name} Playlists
+            Access Your {originService?.name} Playlist
           </h2>
           <h3 className="mb-5">
-            Choose how you want to access your playlist
+            Choose how you want to get your playlists
           </h3>
-          <button className="flex flex-row justify-center items-center gap-4 w-full p-2 rounded-lg bg-neutral-800 text-white text-base hover:cursor-pointer"
-                  onClick={handleClickAccount}>
+          <button 
+            className="flex flex-row justify-center items-center gap-4 w-full p-2 rounded-lg bg-neutral-800 text-white text-base hover:cursor-pointer"
+            onClick={handleClickAccount}
+            disabled={isAccountLoading}
+          >
             {
-              isFetchingAccountPlaylists ? 
-                <span>Loading Account Playlists</span>
+              isAccountLoading && !isAuthenticated ? 
+                <span>Authenticating...</span>
                 :
-                <span>Access Account Playlists</span>
+                <span>Access Your Account Playlists</span>
             }
             <MoonLoader color="#fff" size={18} loading={isAccountLoading}/>
           </button>
           
           <div className="flex items-center gap-4 h-6 w-full my-2">
-            <div className="w-full h-[1px] bg-gray-600"/>
+            <div className="w-full h-px scale-y-[0.5] bg-gray-600"/>
             <span>or</span>
-            <div className="w-full h-[1px] bg-gray-600"/>
+            <div className="w-full h-px scale-y-[0.5] bg-gray-600"/>
           </div>
 
           <form action="" className="flex flex-col justify-center gap-4 w-full">
@@ -127,7 +123,7 @@ export default function AccessPlaylist() {
                 value={`Access Playlist URL`}
                 onSubmit={handleClickSubmit}
               />
-              <MoonLoader color="#fff" size={18} loading={isPlaylistLoading}/>
+              {/* <MoonLoader color="#fff" size={18} loading={isPlaylistLoading}/> */}
             </div>
           </form>
         </div>

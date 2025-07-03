@@ -11,11 +11,20 @@ export async function GET(request: NextRequest) {
       Authorization: `Bearer ${accessToken}`,
     },
   })
+
   if (!response.ok) {
-    return new Response('Failed to fetch playlists', { status: 500 })
+    return new Response('Failed to fetch playlists' + response.status, { status: 500 })
   }
 
   const data = await response.json()
-  console.log(data)
-  return new Response(JSON.stringify(data), { status: 200 })
+  const playlists: Playlist[] = data.items.map(
+    (playlist: SpotifyPlaylistItemRaw) => { return {
+      id: playlist.id,
+      name: playlist.name,
+      owner: playlist.owner.display_name,
+      cover: playlist.images[0].url,
+      num_tracks: playlist.tracks.total,
+    }}
+  )
+  return new Response(JSON.stringify(playlists), { status: 200 })
 }

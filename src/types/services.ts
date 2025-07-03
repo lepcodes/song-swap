@@ -43,3 +43,4 @@ export type ServiceNames = keyof typeof availableServices
 export const ServiceKeys = Object.keys(availableServices) as ServiceNames[]
 
 export type Service =  typeof availableServices[ServiceNames]
+export type Message = 'success' | 'error'

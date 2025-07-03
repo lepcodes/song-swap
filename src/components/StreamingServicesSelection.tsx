@@ -24,7 +24,7 @@ export default function StreamingServicesSelection() {
   const targetService = useServiceStore<Service | null>((state) => state.targetService)
   return(
     <>
-      <div className="selection shadow-lg flex flex-row justify-evenly gap-5 items-center flex-wrap bg-white rounded-lg p-4">
+      <div className="selection flex flex-row justify-evenly gap-5 items-center flex-wrap bg-white rounded-lg p-4 shadow-xs border border-gray-200">
         <h1 className="text-2xl font-bold text-center">
           Select Streaming Services
         </h1>

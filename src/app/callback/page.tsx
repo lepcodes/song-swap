@@ -2,10 +2,12 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useServiceStore } from '@/stores/useServiceStore';
+import { Message } from '@/types/services';
 
 export default function Close() {
   const searchParams = useSearchParams();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const isAuthenticated = useServiceStore((state) => state.isAuthenticated);
+  const setIsAuthenticated = useServiceStore((state) => state.setIsAuthenticated);
   const [error, setError] = useState<string | null>(null);
   const {originService} = useServiceStore((state) => state)
   
@@ -20,31 +22,32 @@ export default function Close() {
       .then(data => {
         const success = data.success;
         if (success) {
-          console.log('Código de autorización procesado exitosamente');
           const channel = new BroadcastChannel('auth');
-          channel.postMessage('success');
+          const message: Message = 'success';
+          channel.postMessage(message);
           channel.close();
           setIsAuthenticated(true);
-          window.close();
+          window.close()
         }
       })
       .catch(error => {
-        console.error('Error al procesar código de autorización:', error);
-        setError(error);
         const channel = new BroadcastChannel('auth');
-        channel.postMessage('fail');
+        const message: Message = 'error';
+        channel.postMessage(message);
         channel.close();
+        setError(error);
+        setIsAuthenticated(false);
       });
       
     } else if (errorParam) {
-      console.error('Error de autorización recibido:', errorParam);
-      setError(errorParam);
       const channel = new BroadcastChannel('auth');
-      channel.postMessage('fail');
+      const message: Message = 'error';
+      channel.postMessage(message);
       channel.close();
+      setError(errorParam);
+      setIsAuthenticated(false);
     }
-
-  }, [searchParams, originService]);
+  }, [searchParams, setIsAuthenticated, originService]);
 
   return (
     <div>

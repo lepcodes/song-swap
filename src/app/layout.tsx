@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Providers from "@/providers/provider";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'; 
 // import { Geist, Geist_Mono } from "next/font/google";
 import "../styles/globals.css";
 
@@ -27,7 +29,10 @@ export default function RootLayout({
       <body
         className={`antialiased`}
       >
-        {children}
+        <Providers>
+          {children}
+          <ReactQueryDevtools />
+        </Providers>
       </body>
     </html>
   );
