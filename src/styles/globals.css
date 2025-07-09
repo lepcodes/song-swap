@@ -5,6 +5,8 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-accent: var(--accent);
+  --color-highlight: var(--highlight);
   --color-foreground: var(--foreground);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -72,7 +74,9 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --background: #f6f8f9;
+  --background: #f8f6ed;
+  --accent: #f8f6ed;
+  --highlight: #d4d0bd;
   --foreground: oklch(0.145 0 0);
 }
 
@@ -121,12 +125,13 @@
 
 .main {
   display: grid;
-  grid-template-rows: 0.2fr 1.5fr 1.8fr;
-  grid-template-columns : repeat(3, 1fr) 0.3fr;
+  grid-template-rows: 0.2fr 1.5fr 1.8fr 0.2fr;
+  grid-template-columns : repeat(3, 1fr);
   grid-template-areas: 
-  "navbar navbar navbar navbar"
-  "selection display display footer"
-  "access display display footer";
+  "navbar navbar navbar"
+  "selection display display"
+  "access display display"
+  "access footer footer";
   min-height: 100vh;
   gap: 1rem;
   padding: 1rem;
@@ -146,4 +151,8 @@
 }
 .footer {
   grid-area: footer;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }

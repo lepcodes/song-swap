@@ -9,7 +9,7 @@ export default function Header() {
   
   return (
     <>
-      <nav className="navbar flex flex-1 justify-between items-center bg-white rounded-lg py-3 px-5 shadow-xs border border-gray-200">
+      <nav className="navbar flex flex-1 justify-between items-center bg-white rounded-4xl py-3 px-5 shadow-xs border border-gray-200">
         <h1 
           className={`text-2xl tracking-normal ${font.className}`}
         >

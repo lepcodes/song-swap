@@ -45,7 +45,7 @@ export default function CallbackClient() {
   }, [searchParams, setIsAuthenticated, originService]);
 
   return (
-    <div>
+    <div className="flex flex-col gap-2 items-center justify-center w-full h-full p-10">
       {isAuthenticated && <h1>Autenticación exitosa</h1>}
       {!isAuthenticated && !error && <h1>Autenticando...</h1>}
       {error && <p>Error: {error}</p>}

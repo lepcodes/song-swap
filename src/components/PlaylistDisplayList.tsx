@@ -33,21 +33,30 @@ export default function PlaylistDisplayList() {
 
   return (
     <>
-      <div className="display rounded-lg bg-white overflow-hidden shadow-xs border border-gray-200">
-        <div className='flex flex-col h-full p-4 gap-3 items-center overflow-y-auto'>
-          {
-            isLoading && 
-            <div className='flex flex-col w-full'>
-              <PlaylistSkeleton/>
-              <PlaylistSkeleton/>
-              <PlaylistSkeleton/>
-            </div>
-          }
-          {
-            status === 'success' &&
-            playlists.map((playlist) => {
-              return (
-                <Playlist
+      <div className="display rounded-4xl bg-white overflow-hidden shadow-xs border border-gray-100">
+        {
+          !playlists ?
+          <div className='h-full w-full'>
+            <div className='flex flex-col h-full w-full p-4 gap-3 items-center justify-center opacity-15 bg-neutral-200 border border-neutral-400 rounded-4xl'/>
+            <h1 className='absolute top-1/2 left-1/2 translate-x-1/2 -translate-y-1/2 border border-neutral-200 py-3 px-6 rounded-4xl bg-accent shadow-xs'>
+              Here you can find your playlists
+            </h1>
+          </div>
+          :
+          <div className='flex flex-col h-full p-4 gap-3 items-center overflow-y-auto'>
+            {
+              isLoading && 
+              <div className='flex flex-col w-full'>
+                <PlaylistSkeleton/>
+                <PlaylistSkeleton/>
+                <PlaylistSkeleton/>
+              </div>
+            }
+            {
+              status === 'success' &&
+              playlists.map((playlist) => {
+                return (
+                  <Playlist
                   id = {playlist.id}
                   key = {playlist.id}
                   name = {playlist.name}
@@ -56,11 +65,12 @@ export default function PlaylistDisplayList() {
                   num_tracks = {playlist.num_tracks}
                   // tracks = {[]}
                   // duration = {0}
-                />
-              )
-            })
-          }
-        </div>
+                  />
+                )
+              })
+            }
+          </div>
+        }
       </div>
     </>
   );

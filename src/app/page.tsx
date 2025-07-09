@@ -15,7 +15,7 @@ export default function Home() {
 
       <PlaylistDisplayList/>
 
-      <div className="footer flex flex-row flex-1 gap-5 items-center flex-wrap bg-white rounded-lg p-4 shadow-xs border border-gray-200"></div>
+      <div className="footer h-20 flex flex-row flex-1 gap-5 items-center flex-wrap bg-white rounded-4xl p-4 shadow-xs border border-gray-100"></div>
     
     </div>
   );

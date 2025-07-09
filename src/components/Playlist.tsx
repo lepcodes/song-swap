@@ -70,7 +70,7 @@ export default function Playlist({id, name, cover, owner, num_tracks}: Playlist)
 
   return ( 
     <>
-      <Collapsible className="flex flex-col gap-2 w-full border-gray-200 border rounded-lg shadow-xs">
+      <Collapsible className="flex flex-col gap-2 w-full border-gray-200 border rounded-3xl bg-[#f7f4ef] ">
         <div className="flex flex-row relative flex-wrap justify-start items-center m-4 gap-4">
           <Checkbox 
             checked={isPlaylistChecked}
@@ -81,10 +81,10 @@ export default function Playlist({id, name, cover, owner, num_tracks}: Playlist)
           <Image src={cover} alt="cover" width={80} height={80} className="rounded-xl"/>
           <div className="h-20 flex flex-col justify-between p-2">
             <div className="flex flex-wrap gap-x-6">
-              <h1 className="text-xl font-bold">{name}</h1> 
-              <span className="text-sm p-1 text-gray-600 bg-gray-100 rounded-md ">{"Playlist"}</span>
+              <h1 className="text-lg font-bold">{name}</h1> 
+              <span className="text-sm py-1 px-2 text-white bg-neutral-400 rounded-md ">{"Playlist"}</span>
             </div>
-            <div className="flex flex-wrap gap-x-6">
+            <div className="flex flex-wrap gap-x-6 text-sm">
               <p>{owner}</p>
               <Separator className='h-6' orientation="vertical"/> 
               <p>{num_tracks} tracks</p>
@@ -103,7 +103,7 @@ export default function Playlist({id, name, cover, owner, num_tracks}: Playlist)
           </div>
 
           <CollapsibleTrigger 
-            className="absolute right-0 top-10 -translate-y-1/2 hover:cursor-pointer hover:bg-gray-200 hover:rounded-lg"
+            className="absolute right-0 top-10 -translate-y-1/2 hover:cursor-pointer hover:bg-white hover:rounded-lg"
             onClick={() => setIsCollapsed(!isCollapsed)}
           >
             {
