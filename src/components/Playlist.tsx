@@ -9,9 +9,14 @@ import { IoIosArrowForward } from "react-icons/io";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useServiceStore } from "../stores/useServiceStore";
 import { usePlaylistStore } from "../stores/usePlaylistStore";
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
-export default function Playlist({id, name, cover, owner, num_tracks}: Playlist){
+interface PlaylistProps extends Playlist{
+  ref: React.Ref<HTMLDivElement>
+  onDrowpDown: () => void
+}
+
+export default function Playlist({id, name, cover, owner, num_tracks, ref, onDrowpDown}: PlaylistProps){
   const [ isPlaylistChecked , setIsPlaylistChecked ] = useState(true)
   const [ isCollapsed, setIsCollapsed ] = useState(true)
   const [ shouldFetchTracks, setShouldFetchTracks ] = useState(false)
@@ -68,42 +73,18 @@ export default function Playlist({id, name, cover, owner, num_tracks}: Playlist)
     }
   }, [isCollapsed, tracks])
 
+  useEffect(() => {
+    if (status === 'success'){
+      onDrowpDown()
+    }
+  }, [isCollapsed, status, onDrowpDown])
+
   return ( 
     <>
-      <Collapsible className="flex flex-col gap-2 w-full border-gray-200 border rounded-3xl bg-[#f7f4ef] ">
+      <Collapsible ref={ref} className="flex flex-col gap-2 w-full h-full border-gray-200 border rounded-3xl bg-[#f7f4ef] ">
         <div className="flex flex-row relative flex-wrap justify-start items-center m-4 gap-4">
-          <Checkbox 
-            checked={isPlaylistChecked}
-            className="w-5 h-5"
-            onCheckedChange={handleCheckedChangeDisplay}
-          />
-          {/* <img className="w-20 h-20 rounded-xl" src={cover} alt="cover"/> */}
-          <Image src={cover} alt="cover" width={80} height={80} className="rounded-xl"/>
-          <div className="h-20 flex flex-col justify-between p-2">
-            <div className="flex flex-wrap gap-x-6">
-              <h1 className="text-lg font-bold">{name}</h1> 
-              <span className="text-sm py-1 px-2 text-white bg-neutral-400 rounded-md ">{"Playlist"}</span>
-            </div>
-            <div className="flex flex-wrap gap-x-6 text-sm">
-              <p>{owner}</p>
-              <Separator className='h-6' orientation="vertical"/> 
-              <p>{num_tracks} tracks</p>
-              {/* {(() => {
-                const discardedCount = playlists.get(id)?.size;
-                if (typeof discardedCount === 'number' && discardedCount > 0) {
-                  return (
-                    <>
-                      <Separator className='h-6' orientation="vertical"/>
-                      <p>({num_tracks - discardedCount} tracks selected)</p>
-                    </>
-                  );
-                }
-              })()} */}
-            </div>
-          </div>
-
           <CollapsibleTrigger 
-            className="absolute right-0 top-10 -translate-y-1/2 hover:cursor-pointer hover:bg-white hover:rounded-lg"
+            className="hover:cursor-pointer hover:bg-white hover:rounded-lg"
             onClick={() => setIsCollapsed(!isCollapsed)}
           >
             {
@@ -114,14 +95,33 @@ export default function Playlist({id, name, cover, owner, num_tracks}: Playlist)
               <IoIosArrowDown className="m-1 h-6 w-6"/>
             }
           </CollapsibleTrigger>
+          <Image src={cover} alt="cover" width={80} height={80} className="rounded-xl"/>
+          <div className="h-20 flex flex-col justify-between p-2">
+            <div className="flex flex-wrap gap-x-6">
+              <h1 className="text-lg font-bold">{name}</h1> 
+              <span className="text-sm py-1 px-2 text-white bg-neutral-400 rounded-md ">{"Playlist"}</span>
+            </div>
+            <div className="flex flex-wrap gap-x-6 text-sm">
+              <p>{owner}</p>
+              <Separator className='h-6' orientation="vertical"/> 
+              <p>{num_tracks} tracks</p>
+            </div>
+          </div>
+
+          <Checkbox 
+            checked={isPlaylistChecked}
+            className="w-5 h-5 absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1/2"
+            onCheckedChange={handleCheckedChangeDisplay}
+          />
+          
         </div>
         
-        <CollapsibleContent className="">
+        <CollapsibleContent className="h-full overflow-y-hidden">
           <div className="flex flex-col justify-center items-center w-full">
             <hr className="w-[96%]"/>
             <MoonLoader className="mt-6" size={18} loading={isLoading}/>
           </div>
-          <div className="flex flex-col m-4 gap-3 max-h-96 overflow-y-auto">
+          <div className="flex flex-col m-4 gap-3 pl-12 max-h-full overflow-y-scroll">
             {
               status === 'success' &&
               tracks?.map((track) => {
@@ -161,6 +161,9 @@ export default function Playlist({id, name, cover, owner, num_tracks}: Playlist)
                 <p className="text-sm">Something went wrong</p>
               </div>
             }
+            <div className="flex">
+              <div className="h-6"></div>
+            </div>
           </div>
         </CollapsibleContent>
 
