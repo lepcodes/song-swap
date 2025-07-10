@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
 import Providers from "@/providers/provider";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'; 
-// import { Geist, Geist_Mono } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "../styles/globals.css";
 
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+const roboto = Roboto({
+  variable: "--font-roboto",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Song Swap",
@@ -27,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="">
       <body
-        className={`antialiased`}
+        className={`antialiased ${roboto.className}`}
       >
         <Providers>
           {children}

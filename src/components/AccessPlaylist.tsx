@@ -75,11 +75,11 @@ export default function AccessPlaylist() {
 
   return (
     <>
-      <div className="access flex justify-center items-center bg-transparent p-0">
-        <div className={`flex flex-col gap-2 items-center justify-evenly w-full h-full px-6 py-6 rounded-lg shadow-xs
+      <div className="access flex justify-center items-center bg-white rounded-4xl p-0">
+        <div className={`flex flex-col gap-2 items-center justify-evenly w-full h-full px-6 py-6 rounded-4xl shadow-xs border border-gray-100
           ${originService
           ? 'bg-white opacity-100 border' 
-          : 'bg-gray-300 opacity-15 border-gray-400 border pointer-events-none cursor-not-allowed'}`}>
+          : 'bg-neutral-200 opacity-15 border-neutral-400 border pointer-events-none cursor-not-allowed'}`}>
           <h2 className="text-xl font-bold text-center">
             Access Your {originService?.name} Playlist
           </h2>
@@ -87,7 +87,7 @@ export default function AccessPlaylist() {
             Choose how you want to get your playlists
           </h3>
           <button 
-            className="flex flex-row justify-center items-center gap-4 w-full p-2 rounded-lg bg-neutral-800 text-white text-base hover:cursor-pointer"
+            className="flex flex-row justify-center items-center gap-4 w-full p-2 rounded-full bg-neutral-800 text-white text-base hover:cursor-pointer hover:bg-neutral-700  transition-all"
             onClick={handleClickAccount}
             disabled={isAccountLoading}
           >
@@ -109,14 +109,14 @@ export default function AccessPlaylist() {
           <form action="" className="flex flex-col justify-center gap-4 w-full">
             <div className="w-full flex flex-row justify-between items-center">
               <GoLink className="absolute mx-3 w-4 h-4 text-gray-600 " target="playlist_url"/>
-              <input className='w-full rounded-md p-2 pl-10 bg-gray-100 text-black text-base' 
+              <input className='w-full rounded-full p-2 pl-10 bg-[#faf6f3] text-black text-base' 
                     type="text" 
                     name="playlist_url" 
                     id="playlist_url" 
                     placeholder={`Enter ${originService ? originService.name + " " : ""}playlist URL`}
                     onChange={handlePlaylistUrl}/>
             </div>
-            <div className="group rounded-md p-2 bg-neutral-600 text-white hover:cursor-pointer flex flex-row justify-center items-center gap-4">
+            <div className="group rounded-full p-2 bg-neutral-600 text-white hover:cursor-pointer flex flex-row justify-center items-center gap-4 hover:bg-neutral-500 transition-all">
               <input className='group-hover:cursor-pointer'
                 type="submit" 
                 id="Access Playlist"
@@ -130,26 +130,14 @@ export default function AccessPlaylist() {
         {
           ! originService
           ?
-          <div className="absolute border border-gray-400 rounded-xl p-4 bg-white">
-            <MdOutlineLock className="opacity-200 w-14 h-14"/>
+          <div className="absolute border border-neutral-300 rounded-xl p-4 bg-accent shadow-xs">
+            <MdOutlineLock className="w-14 h-14"/>
           </div>
           :
           <></>
         }
         
       </div>
-      {/* <div>
-        <AlertDialog open={authStatus === 'logging' || fetchStatus === 'fetching'} >
-          <AlertDialogContent className='w-96'>
-            <AlertDialogHeader className='flex flex-col gap-5'>
-              <AlertDialogTitle className='text-4xl'>Loading...</AlertDialogTitle>
-              <AlertDialogDescription className='text-xl'>
-                Getting your playlists. Hold on a sec.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div> */}
     </>    
   )
 }

@@ -6,8 +6,8 @@ interface ServiceState {
     originService: Service | null,
     targetService: Service | null,
     setIsAuthenticated: (isAuthenticated: boolean) => void,
-    setOriginService: (originService: Service) => void,
-    setTargetService: (targetService: Service) => void
+    setOriginService: (originService: Service | null) => void,
+    setTargetService: (targetService: Service | null) => void
 }
 
 export const useServiceStore = create<ServiceState>((set) => ({

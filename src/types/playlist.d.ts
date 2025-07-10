@@ -14,6 +14,11 @@ type Track = {
     playlistId: string,
 }
 
+type TracksPage = {
+    tracks: Track[],
+    nextOffset: number | null
+}
+
 type SpotifyPlaylistImage = {
     height: number,
     url: string,
