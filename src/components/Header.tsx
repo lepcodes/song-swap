@@ -3,6 +3,7 @@ import { Fascinate } from 'next/font/google'
 
 const font = Fascinate({
   weight: '400',
+  subsets: ['latin'],
 })
 
 export default function Header() {
