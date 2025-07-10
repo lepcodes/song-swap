@@ -87,7 +87,7 @@ export default function AccessPlaylist() {
             Choose how you want to get your playlists
           </h3>
           <button 
-            className="flex flex-row justify-center items-center gap-4 w-full p-2 rounded-full bg-neutral-800 text-white text-base hover:cursor-pointer"
+            className="flex flex-row justify-center items-center gap-4 w-full p-2 rounded-full bg-neutral-800 text-white text-base hover:cursor-pointer hover:bg-neutral-700  transition-all"
             onClick={handleClickAccount}
             disabled={isAccountLoading}
           >
@@ -116,7 +116,7 @@ export default function AccessPlaylist() {
                     placeholder={`Enter ${originService ? originService.name + " " : ""}playlist URL`}
                     onChange={handlePlaylistUrl}/>
             </div>
-            <div className="group rounded-full p-2 bg-neutral-600 text-white hover:cursor-pointer flex flex-row justify-center items-center gap-4">
+            <div className="group rounded-full p-2 bg-neutral-600 text-white hover:cursor-pointer flex flex-row justify-center items-center gap-4 hover:bg-neutral-500 transition-all">
               <input className='group-hover:cursor-pointer'
                 type="submit" 
                 id="Access Playlist"

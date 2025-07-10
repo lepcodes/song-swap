@@ -4,8 +4,9 @@ import Playlist from './Playlist';
 import PlaylistSkeleton from "./PlaylistSkeleton";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServiceStore } from "../stores/useServiceStore";
+import { usePlaylistStore } from "../stores/usePlaylistStore";
 import { useEffect, useRef } from 'react';
-// import playlist_query from './playlist_mockup.json'
+// import playlist_query from './playlist_mockup  .json'
 // const playlists1 = playlist_query.playlists
 
 export default function PlaylistDisplayList() {
@@ -33,6 +34,8 @@ export default function PlaylistDisplayList() {
   const queryClient = useQueryClient()
   const {originService} = useServiceStore((state) => state)
   const {isAuthenticated} = useServiceStore((state) => state)
+  const addPlaylist = usePlaylistStore((state) => state.addPlaylist)
+  const clearPlaylists = usePlaylistStore((state) => state.clearPlaylists)
 
   const fetchPlaylists = async (): Promise<Playlist[]> => {
     const response = await fetch('/api/' + originService?.key + '/account-playlists')
@@ -50,7 +53,16 @@ export default function PlaylistDisplayList() {
     queryClient.removeQueries({
       queryKey: ['playlists'],
     })
-  }, [originService, queryClient])
+    clearPlaylists()
+  }, [originService, queryClient, clearPlaylists])
+
+  useEffect(() => {
+    if (playlists){
+      playlists.forEach((playlist) => {
+        addPlaylist(playlist.id)
+      })
+    }
+  }, [playlists, addPlaylist])
 
   return (
     <>

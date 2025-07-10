@@ -33,7 +33,7 @@ export default function StreamingServicesSelection() {
         <div className='flex justify-evenly items-center gap-5'>
           <Drawer>
             <div className="relative group">
-              <DrawerTrigger className="rounded-3xl hover:cursor-pointer" asChild>
+              <DrawerTrigger className="rounded-3xl hover:cursor-pointer transition-all duration-200" asChild>
                 <div className='h-28 w-28 p-2 flex justify-center items-center border border-neutral-300 hover:bg-neutral-100'>
                   {
                     (originService?.name) ?
@@ -76,7 +76,7 @@ export default function StreamingServicesSelection() {
 
           <Drawer>
             <div className="relative group">
-              <DrawerTrigger className="rounded-3xl hover:cursor-pointer" asChild>
+              <DrawerTrigger className="rounded-3xl hover:cursor-pointer transition-all duration-200" asChild>
                 <div className='h-28 w-28 p-2 flex justify-center items-center border border-neutral-300 hover:bg-neutral-100'>
                   {
                     (targetService?.name) ?

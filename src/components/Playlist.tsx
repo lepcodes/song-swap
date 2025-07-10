@@ -6,6 +6,7 @@ import { Separator } from "./ui/separator"
 import { Checkbox } from "./ui/checkbox"
 import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
+import { FaRegTrashAlt } from "react-icons/fa";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useServiceStore } from "../stores/useServiceStore";
 import { usePlaylistStore } from "../stores/usePlaylistStore";
@@ -21,8 +22,9 @@ export default function Playlist({id, name, cover, owner, num_tracks, ref, onDro
   const [ isCollapsed, setIsCollapsed ] = useState(true)
   const [ shouldFetchTracks, setShouldFetchTracks ] = useState(false)
   const originService = useServiceStore((state) => state.originService)
-  const discardAllTracks = usePlaylistStore((state) => state.discardAllTracks)
+  const removePlaylist = usePlaylistStore((state) => state.removePlaylist)
   const addAllTracks = usePlaylistStore((state) => state.addAllTracks)
+  const playlists = usePlaylistStore((state) => state.playlists)
   
   const fetchPlaylistTracks = async ({ pageParam } : { pageParam: number }): Promise<TracksPage> => {
     const response = await fetch(
@@ -55,9 +57,8 @@ export default function Playlist({id, name, cover, owner, num_tracks, ref, onDro
   
   const handleCheckedChangeDisplay = (checked: boolean) => {
     setIsPlaylistChecked(checked)
-    if (data?.pages && !checked){
-      const trackIds = data.pages.flatMap((page) => page.tracks.map((track) => track.id))
-      discardAllTracks(id, trackIds)
+    if (!checked){
+      removePlaylist(id)
     }
     else if (checked){
       addAllTracks(id)
@@ -105,6 +106,21 @@ export default function Playlist({id, name, cover, owner, num_tracks, ref, onDro
               <p>{owner}</p>
               <Separator className='h-6' orientation="vertical"/> 
               <p>{num_tracks} tracks</p>
+              {
+                playlists.has(id) && 
+                <>
+                  <Separator className='h-6' orientation="vertical"/>
+                  <div className="flex flex-row items-center gap-1">
+                    <p className="text-sm text-neutral-400">
+                      <span className="font-bold">
+                        {playlists.get(id)?.size} tracks
+                      </span>
+                      {" discarded"}
+                    </p>
+                    <FaRegTrashAlt className="w-3.5 h-3.5 text-neutral-400 ml-1"/>
+                  </div>
+                </>
+              }
             </div>
           </div>
 

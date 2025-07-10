@@ -5,7 +5,7 @@ import { usePlaylistStore } from "../stores/usePlaylistStore";
 export default function Track({id, name, cover, artist, playlistId}: Track){
   const playlists = usePlaylistStore((state) => state.playlists)
   const toggleDiscardedTrack = usePlaylistStore((state) => state.toggleDiscardedTrack)
-  const isChecked = !playlists.get(playlistId)?.has(id)
+  const isChecked = playlists.has(playlistId) ? !playlists.get(playlistId)?.has(id) : false
 
   const handleCheckedChange = () => {
     toggleDiscardedTrack(playlistId, id)

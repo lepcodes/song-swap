@@ -2,6 +2,7 @@ import Header from "../components/Header"
 import PlaylistDisplayList from "../components/PlaylistDisplayList";
 import StreamingServicesSelection from "../components/StreamingServicesSelection";
 import AccessPlaylist from "../components/AccessPlaylist";
+import TransferPlaylists from "../components/TransferPlaylists";
 
 export default function Home() {
   return (
@@ -15,8 +16,8 @@ export default function Home() {
 
       <PlaylistDisplayList/>
 
-      <div className="footer h-20 flex flex-row flex-1 gap-5 items-center flex-wrap bg-white rounded-4xl p-4 shadow-xs border border-gray-100"></div>
-    
+      <TransferPlaylists/>
+
     </div>
   );
 }
